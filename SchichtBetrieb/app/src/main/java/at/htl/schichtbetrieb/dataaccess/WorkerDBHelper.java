@@ -37,11 +37,34 @@ public class WorkerDBHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    public boolean insertData(String name){
+    public boolean insertWorker(Worker worker){
         SQLiteDatabase db = getWritableDatabase();
         ContentValues contentValues = new ContentValues();
-        contentValues.put("NAME", name);
+        contentValues.put("NAME", worker.getName());
         return db.insert("WORKER", null, contentValues) != -1;
+    }
+
+    public boolean deleteWorker(int workerId){
+        if(findWorkerById(workerId) == null) return false; //not in database
+        SQLiteDatabase db = getWritableDatabase();
+
+        db.execSQL("DELETE FROM WORKER WHERE ID = " + workerId, null);
+
+        return findWorkerById(workerId) == null; //confirm deleted
+    }
+
+    private Worker findWorkerById(int workerId){
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM WORKER WHERE ID = " + workerId, null);
+        Worker workerToReturn = null;
+        if (cursor != null) {
+            cursor.moveToFirst();
+            workerToReturn = new Worker(cursor.getString(1)); // 1 because 0 is the unique id
+            cursor.close();
+        }
+        db.close();
+
+        return workerToReturn;
     }
 
     public List<Worker> getAllWorkers(){

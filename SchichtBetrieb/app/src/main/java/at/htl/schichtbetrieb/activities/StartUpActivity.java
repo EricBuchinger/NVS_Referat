@@ -43,8 +43,8 @@ public class StartUpActivity extends AppCompatActivity implements WorkDayFragmen
 
             if(allWorkers.size() == 0) //no data in database
             {
-                dbHelper.insertData("TestWorker1");
-                dbHelper.insertData("TestWorker2");
+                dbHelper.insertWorker(new Worker("Thomas"));
+                dbHelper.insertWorker(new Worker("Michael"));
                 initialize();
                 return;
             }
