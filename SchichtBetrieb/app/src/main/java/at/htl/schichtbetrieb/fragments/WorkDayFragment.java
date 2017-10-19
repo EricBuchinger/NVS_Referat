@@ -1,6 +1,7 @@
 package at.htl.schichtbetrieb.fragments;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -13,12 +14,12 @@ import android.widget.TextView;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import at.htl.schichtbetrieb.R;
 import at.htl.schichtbetrieb.activities.StartUpActivity;
+import at.htl.schichtbetrieb.entities.WorkDay;
 import at.htl.schichtbetrieb.entities.Worker;
+import at.htl.schichtbetrieb.services.WorkDaySimulationService;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -39,6 +40,8 @@ public class WorkDayFragment extends Fragment {
     private String mParam2;
 
     private OnFragmentInteractionListener mListener;
+
+    public static WorkDay actualWorkDay = new WorkDay();
 
     public ImageView iv_worker1, iv_worker2;
     public ImageView iv_worker1_working, iv_worker2_working;
@@ -94,20 +97,6 @@ public class WorkDayFragment extends Fragment {
         tv_workday_header = v.findViewById(R.id.tv_workDayHeader);
 
 
-        Timer workMinutesTimer = new Timer("WorkMinutesTimer");
-        workMinutesTimer.scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-                WorkDayFragment.minutes++;
-
-
-                if(minutes == 12)
-                    worker1.setWorking(false);
-
-                updateUI(worker1.isWorking(), worker2.isWorking());
-            }
-        }, 10, 10);
-
         try
         {
             // get input stream
@@ -123,9 +112,22 @@ public class WorkDayFragment extends Fragment {
             iv_worker2.setImageDrawable(d);
             ims .close();
         }
-        catch(IOException ex)
+        catch(IOException ignored)
         {
         }
+
+        WorkDay testWorkDay = new WorkDay();
+        testWorkDay.setTotalMinutesOfWork(100);
+        WorkDaySimulationService workDaySimulationService = new WorkDaySimulationService("Day 1", actualWorkDay);
+
+        Intent plsWorkIntent = new Intent(getActivity(), WorkDaySimulationService.class);
+
+        //plsWorkIntent.setData(Uri.parse("/storage/emulated/0/Download/lol.txt"));
+
+        workDaySimulationService.startService(plsWorkIntent); //FIXME HERE IS THE ERROR
+
+        if(tv_workday_header == null) tv_workday_header = new TextView(getContext());
+        tv_workday_header.setText("Workday \t" + "ActMins: " + actualWorkDay.getActualMinutesPassed() + "TotalMins: " + actualWorkDay.getTotalMinutesOfWork() + "\nPercentFinished: " + actualWorkDay.getPercentFinished() + "%");
 
 
         //iv_worker1.setima

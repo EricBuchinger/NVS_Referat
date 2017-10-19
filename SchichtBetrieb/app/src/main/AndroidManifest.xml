@@ -18,4 +18,8 @@
         </activity>
     </application>
 
+    <service
+        android:name=".WorkDaySimulationService"
+        android:exported="false"/>
+
 </manifest>
