@@ -59,7 +59,7 @@ public class WorkerDBHelper extends SQLiteOpenHelper {
         Worker workerToReturn = null;
         if (cursor != null) {
             cursor.moveToFirst();
-            workerToReturn = new Worker(cursor.getString(1)); // 1 because 0 is the unique id
+           // workerToReturn = new Worker(cursor.getString(1)); // 1 because 0 is the unique id //FIXME
             cursor.close();
         }
         db.close();
@@ -74,7 +74,7 @@ public class WorkerDBHelper extends SQLiteOpenHelper {
         if (cursor != null) {
             if (cursor.moveToFirst()) {
                 do {
-                    workers.add(new Worker(cursor.getString(1))); //1 because 0 is the unique id
+                   // workers.add(new Worker(cursor.getString(1))); //1 because 0 is the unique id //FIXME
                 } while (cursor.moveToNext());
 
             }

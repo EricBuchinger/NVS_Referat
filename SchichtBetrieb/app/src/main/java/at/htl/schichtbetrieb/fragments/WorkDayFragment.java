@@ -1,25 +1,32 @@
 package at.htl.schichtbetrieb.fragments;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 import at.htl.schichtbetrieb.R;
 import at.htl.schichtbetrieb.activities.StartUpActivity;
-import at.htl.schichtbetrieb.entities.WorkDay;
 import at.htl.schichtbetrieb.entities.Worker;
-import at.htl.schichtbetrieb.services.WorkDaySimulationService;
+import at.htl.schichtbetrieb.services.BackgroundService;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -40,12 +47,9 @@ public class WorkDayFragment extends Fragment {
     private String mParam2;
 
     private OnFragmentInteractionListener mListener;
-
-    public static WorkDay actualWorkDay = new WorkDay();
-
     public ImageView iv_worker1, iv_worker2;
-    public ImageView iv_worker1_working, iv_worker2_working;
-    public TextView tv_workday_header, tv_worker1detail, tv_worker2detail;
+    public CheckBox cb_worker1_working, cb_worker2_working;
+    public TextView tv_workday_header;
     public Worker worker1 = StartUpActivity.worker1;
     public Worker worker2 = StartUpActivity.worker2;
 
@@ -82,6 +86,7 @@ public class WorkDayFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+
     }
 
     @Override
@@ -89,16 +94,23 @@ public class WorkDayFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_work_day, container, false);
+        IntentFilter statusIntentFilter = new IntentFilter("TimerBroadcast");
+
+        DownloadStateReceiver mDownloadStateReceiver =
+                new DownloadStateReceiver();
+        // Registers the DownloadStateReceiver and its intent filters
+        LocalBroadcastManager.getInstance(getContext()).registerReceiver(mDownloadStateReceiver,statusIntentFilter);
+
 
         iv_worker1 = v.findViewById(R.id.iv_worker1);
         iv_worker2 = v.findViewById(R.id.iv_worker2);
-        iv_worker1_working = v.findViewById(R.id.iv_worker1_working);
-        iv_worker2_working = v.findViewById(R.id.iv_worker2_working);
         tv_workday_header = v.findViewById(R.id.tv_workDayHeader);
-        tv_worker1detail = v.findViewById(R.id.tv_worker1detail);
-        tv_worker2detail = v.findViewById(R.id.tv_worker2detail);
+        cb_worker1_working = v.findViewById(R.id.work1Cb);
+        cb_worker2_working = v.findViewById(R.id.worker2Cb);
 
-
+        Intent intent = new Intent(getContext(),BackgroundService.class);
+        intent.setData(Uri.parse("0"));
+        getActivity().startService(intent);
         try
         {
             // get input stream
@@ -116,36 +128,11 @@ public class WorkDayFragment extends Fragment {
         }
         catch(IOException ignored)
         {
+            Log.e("Workday","Error in Reading Inputstream!");
+            ignored.printStackTrace();
         }
-
-        WorkDay testWorkDay = new WorkDay();
-        testWorkDay.setTotalMinutesOfWork(100);
-        WorkDaySimulationService workDaySimulationService = new WorkDaySimulationService("Day 1", actualWorkDay);
-
-        Intent plsWorkIntent = new Intent(getActivity(), WorkDaySimulationService.class);
-
-        //plsWorkIntent.setData(Uri.parse("/storage/emulated/0/Download/lol.txt"));
-
-        //workDaySimulationService.startService(plsWorkIntent); //FIXME HERE IS THE ERROR
-
-        if(tv_workday_header == null) tv_workday_header = new TextView(getContext());
-        //tv_workday_header.setText("Workday \t" + "ActMins: " + actualWorkDay.getActualMinutesPassed() + "TotalMins: " + actualWorkDay.getTotalMinutesOfWork() + "\nPercentFinished: " + actualWorkDay.getPercentFinished() + "%");
-
-
-        tv_worker1detail.setText(worker1.getName());
-        tv_worker2detail.setText(worker2.getName());
-
-        //iv_worker1.setima
         return v;
     }
-
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
-
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -163,23 +150,37 @@ public class WorkDayFragment extends Fragment {
         mListener = null;
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
 
-    public void updateUI(boolean worker1working, boolean worker2working){ //TODO call by Service (timer)
-        iv_worker1_working.setEnabled(worker1working);
-        iv_worker2_working.setEnabled(worker2working);
+    public void updateUI(boolean worker1working, boolean worker2working,String time){ //TODO call by Service (timer)
+        cb_worker1_working.setEnabled(worker1working);
+        cb_worker2_working.setEnabled(worker2working);
+        tv_workday_header.setText(time);
+    }
+    private class DownloadStateReceiver extends BroadcastReceiver
+    {
+        // Prevents instantiation
+        private DownloadStateReceiver() {
+        }
+        // Called when the BroadcastReceiver gets an Intent it's registered to receive
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            int milliseconds = intent.getIntExtra("Time",0);
+            String time = getDate(milliseconds, "hh:mm");
+            updateUI(false,true,time);
+        }
+        private String getDate(long milliSeconds, String dateFormat)
+        {
+
+            SimpleDateFormat formatter = new SimpleDateFormat(dateFormat);
+
+            // Create a calendar object that will convert the date and time value in milliseconds to date.
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTimeInMillis(milliSeconds);
+            return formatter.format(calendar.getTime());
+        }
     }
 }

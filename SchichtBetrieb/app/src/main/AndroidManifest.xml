@@ -16,10 +16,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+       <service
+           android:name=".services.BackgroundService"
+           android:exported="true">
+           <intent-filter>
+               <action android:name="at.htl.schichtbetrieb.services.Example"></action>
+           </intent-filter>
+        </service>
     </application>
 
-    <service
-        android:name=".WorkDaySimulationService"
-        android:exported="false"/>
+
 
 </manifest>

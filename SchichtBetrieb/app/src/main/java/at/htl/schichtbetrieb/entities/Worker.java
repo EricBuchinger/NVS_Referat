@@ -7,6 +7,8 @@ package at.htl.schichtbetrieb.entities;
 public class Worker{
     private int id;
     private String name;
+    private boolean working;
+    private Activity activity;
 
     //region Getter & Setter
     public int getId() {
@@ -24,11 +26,32 @@ public class Worker{
     public void setName(String name) {
         this.name = name;
     }
+
+    public boolean isWorking() {
+        return working;
+    }
+
+    public void setWorking(boolean working) {
+        this.working = working;
+    }
+
+    public Activity getActivity() {
+        return activity;
+    }
+
+    public void setActivity(Activity activity) {
+        this.activity = activity;
+    }
+
     //endregion
 
     public Worker(){
+        setWorking(false);
     }
-    public Worker(String name){
-        setName(name);
+
+    public Worker(int id, String name, boolean working, Activity activity) {
+        this.id = id;
+        this.name = name;
+        this.working = working;
     }
 }

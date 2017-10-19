@@ -1,30 +1,37 @@
 package at.htl.schichtbetrieb.activities;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
+import java.util.Date;
 import java.util.LinkedList;
 
 import at.htl.schichtbetrieb.R;
 import at.htl.schichtbetrieb.dataaccess.WorkerDBHelper;
+import at.htl.schichtbetrieb.entities.Activity;
 import at.htl.schichtbetrieb.entities.Worker;
 import at.htl.schichtbetrieb.fragments.WorkDayFragment;
+import at.htl.schichtbetrieb.services.BackgroundService;
+import at.htl.schichtbetrieb.services.Example;
 
 public class StartUpActivity extends AppCompatActivity implements WorkDayFragment.OnFragmentInteractionListener {
 
+    public static Worker worker1 = new Worker(0,"Hans Peter",false,new Activity("Putzen", new Date(), new Date()));
+    public static Worker worker2 = new Worker(1,"Jakob",false,new Activity("Waschen", new Date(), new Date()));
+
     private WorkerDBHelper dbHelper;
-    public static Worker worker1;
-    public static Worker worker2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_start_up);
 
-        dbHelper = new WorkerDBHelper(this.getApplicationContext());
 
+        //SqlLite
+        dbHelper = new WorkerDBHelper(this.getApplicationContext());
         dbHelper.onUpgrade(dbHelper.getWritableDatabase(), 0, 0);
         initialize();
 
@@ -37,24 +44,23 @@ public class StartUpActivity extends AppCompatActivity implements WorkDayFragmen
         fm.beginTransaction().add(R.id.container_main, workDayFragment, null).commit();
     }
 
+    @Override
+    public void onFragmentInteraction(Uri uri) {
+
+    }
     private void initialize() {
         if(worker1 == null || worker2 == null){
             LinkedList<Worker> allWorkers = (LinkedList<Worker>) dbHelper.getAllWorkers();
 
             if(allWorkers.size() == 0) //no data in database
             {
-                dbHelper.insertWorker(new Worker("Thomas"));
-                dbHelper.insertWorker(new Worker("Michael"));
+                //dbHelper.insertWorker(new Worker("Thomas"));
+                //dbHelper.insertWorker(new Worker("Michael")); FIXME Insert right entities
                 initialize();
                 return;
             }
             worker1 = allWorkers.get(0);
             worker2 = allWorkers.get(1);
         }
-    }
-
-    @Override
-    public void onFragmentInteraction(Uri uri) {
-
     }
 }
