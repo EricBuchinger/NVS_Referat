@@ -8,7 +8,6 @@ public class Worker{
     private int id;
     private String name;
     private boolean working;
-    private boolean havingBreak;
 
     //region Getter & Setter
     public int getId() {
@@ -34,23 +33,13 @@ public class Worker{
     public void setWorking(boolean working) {
         this.working = working;
     }
-
-    public boolean isHavingBreak() {
-        return havingBreak;
-    }
-
-    public void setHavingBreak(boolean havingBreak) {
-        this.havingBreak = havingBreak;
-    }
     //endregion
 
     public Worker(){
         setWorking(false);
-        setHavingBreak(false);
     }
     public Worker(String name){
         setWorking(false);
-        setHavingBreak(false);
         setName(name);
     }
 }

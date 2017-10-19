@@ -45,7 +45,7 @@ public class WorkDayFragment extends Fragment {
 
     public ImageView iv_worker1, iv_worker2;
     public ImageView iv_worker1_working, iv_worker2_working;
-    public TextView tv_workday_header;
+    public TextView tv_workday_header, tv_worker1detail, tv_worker2detail;
     public Worker worker1 = StartUpActivity.worker1;
     public Worker worker2 = StartUpActivity.worker2;
 
@@ -95,6 +95,8 @@ public class WorkDayFragment extends Fragment {
         iv_worker1_working = v.findViewById(R.id.iv_worker1_working);
         iv_worker2_working = v.findViewById(R.id.iv_worker2_working);
         tv_workday_header = v.findViewById(R.id.tv_workDayHeader);
+        tv_worker1detail = v.findViewById(R.id.tv_worker1detail);
+        tv_worker2detail = v.findViewById(R.id.tv_worker2detail);
 
 
         try
@@ -124,11 +126,14 @@ public class WorkDayFragment extends Fragment {
 
         //plsWorkIntent.setData(Uri.parse("/storage/emulated/0/Download/lol.txt"));
 
-        workDaySimulationService.startService(plsWorkIntent); //FIXME HERE IS THE ERROR
+        //workDaySimulationService.startService(plsWorkIntent); //FIXME HERE IS THE ERROR
 
         if(tv_workday_header == null) tv_workday_header = new TextView(getContext());
-        tv_workday_header.setText("Workday \t" + "ActMins: " + actualWorkDay.getActualMinutesPassed() + "TotalMins: " + actualWorkDay.getTotalMinutesOfWork() + "\nPercentFinished: " + actualWorkDay.getPercentFinished() + "%");
+        //tv_workday_header.setText("Workday \t" + "ActMins: " + actualWorkDay.getActualMinutesPassed() + "TotalMins: " + actualWorkDay.getTotalMinutesOfWork() + "\nPercentFinished: " + actualWorkDay.getPercentFinished() + "%");
 
+
+        tv_worker1detail.setText(worker1.getName());
+        tv_worker2detail.setText(worker2.getName());
 
         //iv_worker1.setima
         return v;
