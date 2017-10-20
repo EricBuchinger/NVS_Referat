@@ -1,8 +1,12 @@
 package at.htl.schichtbetrieb.activities;
 
+import android.content.ContentProvider;
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.net.Uri;
+import android.provider.MediaStore;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.content.ContentResolverCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
@@ -19,8 +23,8 @@ import at.htl.schichtbetrieb.services.Example;
 
 public class StartUpActivity extends AppCompatActivity implements WorkDayFragment.OnFragmentInteractionListener {
 
-    public static Worker worker1 = new Worker(0,"Hans Peter",false,new Activity("Putzen", new Date(), new Date()));
-    public static Worker worker2 = new Worker(1,"Jakob",false,new Activity("Waschen", new Date(), new Date()));
+    //public static Worker worker1 = new Worker(0,"Hans Peter",false,new Activity("Putzen", new Date(), new Date()));
+    //public static Worker worker2 = new Worker(1,"Jakob",false,new Activity("Waschen", new Date(), new Date()));
 
     private WorkerDBHelper dbHelper;
 
@@ -33,7 +37,13 @@ public class StartUpActivity extends AppCompatActivity implements WorkDayFragmen
         //SqlLite
         dbHelper = new WorkerDBHelper(this.getApplicationContext());
         dbHelper.onUpgrade(dbHelper.getWritableDatabase(), 0, 0);
-        initialize();
+
+
+        /*ContentResolver contentResolver = getContentResolver();
+        contentResolver.insert();
+
+        MediaStore.Images.Media.insertImage(contentResolver, getAssets("worker1.png"))
+        */
 
         FragmentManager fm = getSupportFragmentManager();
 
@@ -47,20 +57,5 @@ public class StartUpActivity extends AppCompatActivity implements WorkDayFragmen
     @Override
     public void onFragmentInteraction(Uri uri) {
 
-    }
-    private void initialize() {
-        if(worker1 == null || worker2 == null){
-            LinkedList<Worker> allWorkers = (LinkedList<Worker>) dbHelper.getAllWorkers();
-
-            if(allWorkers.size() == 0) //no data in database
-            {
-                //dbHelper.insertWorker(new Worker("Thomas"));
-                //dbHelper.insertWorker(new Worker("Michael")); FIXME Insert right entities
-                initialize();
-                return;
-            }
-            worker1 = allWorkers.get(0);
-            worker2 = allWorkers.get(1);
-        }
     }
 }

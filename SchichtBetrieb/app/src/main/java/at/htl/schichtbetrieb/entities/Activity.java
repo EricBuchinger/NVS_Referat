@@ -7,11 +7,13 @@ import java.util.Date;
  */
 
 public class Activity {
+    private int id;
     private String name;
     private Date from;
     private Date til;
 
-    public Activity(String name, Date from, Date til) {
+    public Activity(int id, String name, Date from, Date til) {
+        this.setId(id);
         this.name = name;
         this.from = from;
         this.til = til;
@@ -42,5 +44,18 @@ public class Activity {
 
     public void setTil(Date til) {
         this.til = til;
+    }
+
+    @Override
+    public String toString() {
+        return super.toString();
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 }

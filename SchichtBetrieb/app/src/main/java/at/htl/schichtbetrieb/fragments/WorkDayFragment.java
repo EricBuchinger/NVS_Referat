@@ -19,12 +19,14 @@ import android.widget.TextView;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.Date;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
+import java.util.LinkedList;
 
 import at.htl.schichtbetrieb.R;
-import at.htl.schichtbetrieb.activities.StartUpActivity;
+import at.htl.schichtbetrieb.dataaccess.WorkerDBHelper;
+import at.htl.schichtbetrieb.entities.Activity;
 import at.htl.schichtbetrieb.entities.Worker;
 import at.htl.schichtbetrieb.services.BackgroundService;
 
@@ -50,8 +52,9 @@ public class WorkDayFragment extends Fragment {
     public ImageView iv_worker1, iv_worker2;
     public CheckBox cb_worker1_working, cb_worker2_working;
     public TextView tv_workday_header;
-    public Worker worker1 = StartUpActivity.worker1;
-    public Worker worker2 = StartUpActivity.worker2;
+    public Worker worker1, worker2;
+
+    WorkerDBHelper dbHelper;
 
 
     public static int minutes = 0;
@@ -101,6 +104,9 @@ public class WorkDayFragment extends Fragment {
         // Registers the DownloadStateReceiver and its intent filters
         LocalBroadcastManager.getInstance(getContext()).registerReceiver(mDownloadStateReceiver,statusIntentFilter);
 
+        dbHelper = new WorkerDBHelper(getContext());
+
+        initializeDataBase();
 
         iv_worker1 = v.findViewById(R.id.iv_worker1);
         iv_worker2 = v.findViewById(R.id.iv_worker2);
@@ -111,6 +117,8 @@ public class WorkDayFragment extends Fragment {
         Intent intent = new Intent(getContext(),BackgroundService.class);
         intent.setData(Uri.parse("0"));
         getActivity().startService(intent);
+
+        //region setPictures
         try
         {
             // get input stream
@@ -131,8 +139,45 @@ public class WorkDayFragment extends Fragment {
             Log.e("Workday","Error in Reading Inputstream!");
             ignored.printStackTrace();
         }
+
+        //endregion
         return v;
     }
+    private void initializeDataBase(){
+        LinkedList<Activity> allActivities = (LinkedList<Activity>) dbHelper.getAllActivities();
+
+        if(allActivities == null || allActivities.size() == 0) {
+            long now = Calendar.getInstance().getTimeInMillis();
+            Activity activity1 = new Activity(0, "Leichte Arbeit", new Date(now), new Date(now + 5 * 60 * 1000)); //now + 5 minuten
+            Activity activity2 = new Activity(0, "Schwere Arbeit", new Date(now + 20 * 60 * 1000), new Date(now + 60 * 60 * 1000)); //now + 5 minuten | now + 60 minuten
+            dbHelper.insertActivty(activity1);
+            dbHelper.insertActivty(activity2);
+            allActivities = (LinkedList<Activity>) dbHelper.getAllActivities(); //refreshed
+        }
+
+
+            LinkedList<Worker> allWorkers = (LinkedList<Worker>) dbHelper.getAllWorkers();
+            if(allWorkers == null || allWorkers.size() == 0) //no workers in database
+            {
+                dbHelper.insertWorker(new Worker(0, "Eric", true, allActivities.get(0)));
+                dbHelper.insertWorker(new Worker(0, "Philipp", true, allActivities.get(1)));
+            }
+
+            //allWorkers.forEach(w -> Log.e("worker", w.toString()));
+
+            allWorkers = (LinkedList<Worker>) dbHelper.getAllWorkers(); //refreshed
+
+            for(int i = 0; i < allWorkers.size(); i++)
+                Log.e("Worker", allWorkers.get(i).toString());
+
+
+            worker1 = allWorkers.get(0);
+            worker2 = allWorkers.get(1);
+
+            //TODO Share with contentprovider
+
+    }
+
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
