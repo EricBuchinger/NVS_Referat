@@ -19,10 +19,11 @@ import at.htl.schichtbetrieb.entities.Worker;
  * Created by phili on 19.10.2017.
  */
 
-public class WorkerDBHelper extends SQLiteOpenHelper{
+public class WorkerDBHelper extends SQLiteOpenHelper {
     static final String DATABASE_NAME = "workers.db";
     static final String TABLE_NAME_WORKERS = "WORKER";
     static final String TABLE_NAME_ACTIVITIES = "ACTIVITY";
+
     public WorkerDBHelper(Context context) {
         super(context, DATABASE_NAME, null, 1);
     }
@@ -31,7 +32,7 @@ public class WorkerDBHelper extends SQLiteOpenHelper{
     @Override
     public void onCreate(SQLiteDatabase db) {
         String firstStatement = "CREATE TABLE " + TABLE_NAME_ACTIVITIES + "(ACTIVITY_ID INTEGER PRIMARY KEY AUTOINCREMENT, UNTIL TEXT, _FROM TEXT)";
-        String createStatement = "CREATE TABLE "+ TABLE_NAME_WORKERS + "(WORKER_ID INTEGER PRIMARY KEY AUTOINCREMENT, NAME TEXT, WORKING NUMBER, ACTIVITY_ID NUMBER, " +
+        String createStatement = "CREATE TABLE " + TABLE_NAME_WORKERS + "(WORKER_ID INTEGER PRIMARY KEY AUTOINCREMENT, NAME TEXT, WORKING NUMBER, ACTIVITY_ID NUMBER, " +
                 "FOREIGN KEY(ACTIVITY_ID) references ACTIVITY(ACTIVITY_ID)" +
                 ")";
         db.execSQL(firstStatement);
@@ -45,7 +46,7 @@ public class WorkerDBHelper extends SQLiteOpenHelper{
         onCreate(db);
     }
 
-    public boolean insertWorker(Worker worker){
+    public boolean insertWorker(Worker worker) {
         SQLiteDatabase db = getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put("NAME", worker.getName());
@@ -54,7 +55,7 @@ public class WorkerDBHelper extends SQLiteOpenHelper{
         return db.insert("WORKER", null, contentValues) != -1;
     }
 
-    public boolean insertActivty(Activity activity){
+    public boolean insertActivty(Activity activity) {
         SQLiteDatabase db = getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put("UNTIL", String.valueOf(activity.getTil()));
@@ -62,8 +63,8 @@ public class WorkerDBHelper extends SQLiteOpenHelper{
         return db.insert("ACTIVITY", null, contentValues) != -1;
     }
 
-    public boolean deleteWorker(int workerId){
-        if(findWorkerById(workerId) == null) return false; //not in database
+    public boolean deleteWorker(int workerId) {
+        if (findWorkerById(workerId) == null) return false; //not in database
         SQLiteDatabase db = getWritableDatabase();
 
         db.execSQL("DELETE FROM WORKER WHERE WORKER_ID = " + workerId, null);
@@ -71,7 +72,7 @@ public class WorkerDBHelper extends SQLiteOpenHelper{
         return findWorkerById(workerId) == null; //confirm deleted
     }
 
-    private Worker findWorkerById(int workerId){
+    private Worker findWorkerById(int workerId) {
         SQLiteDatabase db = getReadableDatabase();
         Cursor cursor = db.rawQuery("SELECT * FROM WORKER WHERE WORKER_ID = " + workerId, null);
         Worker workerToReturn = null;
@@ -88,7 +89,7 @@ public class WorkerDBHelper extends SQLiteOpenHelper{
         return workerToReturn;
     }
 
-    private Activity findActivityById(int actId){
+    private Activity findActivityById(int actId) {
         SQLiteDatabase db = getReadableDatabase();
         Cursor cursor = db.rawQuery("SELECT * FROM ACTIVITY WHERE ACTIVITY_ID = " + actId, null);
         Activity actToReturn = null;
@@ -121,24 +122,26 @@ public class WorkerDBHelper extends SQLiteOpenHelper{
         return activities;
     }
 
-    public List<Worker> getAllWorkers(){
+    public List<Worker> getAllWorkers() {
         SQLiteDatabase db = getReadableDatabase();
         Cursor cursor = db.rawQuery("SELECT * FROM WORKER", null);
         LinkedList<Worker> workers = new LinkedList<>();
         if (cursor != null) {
             if (cursor.moveToFirst()) {
                 do {
-                    Cursor activityCursor = db.rawQuery("SELECT * FROM ACTIVITY WHERE ACTIVITY_ID = " + cursor.getInt(3), null); //FIXME ERIC -> COUNT = -1
-                    workers.add(new Worker(cursor.getInt(0), cursor.getString(1), cursor.getInt(2) == 1, new Activity(activityCursor.getInt(0), activityCursor.getString(1),
-                            Date.valueOf(activityCursor.getString(2)), Date.valueOf(activityCursor.getString(3)))));
-                    activityCursor.close();
+                    List<Activity> activities = getAllActivities();
+                        for(Activity act : activities) {
+                            if (act.getId() == cursor.getInt(3)) {
+                                workers.add(new Worker(cursor.getInt(0), cursor.getString(1), cursor.getInt(2) == 1, act));
+                            }
+                    }
                 } while (cursor.moveToNext());
-
             }
-            cursor.close();
         }
+        cursor.close();
         db.close();
         return workers;
+    }
 
 
         /*LinkedList<Worker> workers = new LinkedList<>();
@@ -150,7 +153,7 @@ public class WorkerDBHelper extends SQLiteOpenHelper{
         cursor.close();
 
         return workers;*/
-    }
+
 
     /*public List<Activity> getAllActivities() {
         SQLiteDatabase db = getReadableDatabase();
@@ -169,4 +172,6 @@ public class WorkerDBHelper extends SQLiteOpenHelper{
         return activities;
 
     }*/
+
 }
+

@@ -19,7 +19,6 @@ import at.htl.schichtbetrieb.entities.Activity;
 import at.htl.schichtbetrieb.entities.Worker;
 import at.htl.schichtbetrieb.fragments.WorkDayFragment;
 import at.htl.schichtbetrieb.services.BackgroundService;
-import at.htl.schichtbetrieb.services.Example;
 
 public class StartUpActivity extends AppCompatActivity implements WorkDayFragment.OnFragmentInteractionListener {
 

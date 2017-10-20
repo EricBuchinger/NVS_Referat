@@ -29,13 +29,13 @@ public class BackgroundService extends IntentService {
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
         String milliseconds = intent.getDataString();
-        int newMilliseconds = Integer.parseInt(milliseconds);
+        long newMilliseconds = Long.decode(milliseconds);
         while(true) {
-            newMilliseconds += 120000;
+            newMilliseconds += 60000;
             Intent localIntent = new Intent("TimerBroadcast").putExtra("Time", newMilliseconds);
             LocalBroadcastManager.getInstance(this).sendBroadcast(localIntent);
             try {
-                Thread.sleep(1000);
+                Thread.sleep(100);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

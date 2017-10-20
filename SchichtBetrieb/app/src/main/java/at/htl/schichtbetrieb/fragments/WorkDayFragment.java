@@ -115,7 +115,7 @@ public class WorkDayFragment extends Fragment {
         cb_worker2_working = v.findViewById(R.id.worker2Cb);
 
         Intent intent = new Intent(getContext(),BackgroundService.class);
-        intent.setData(Uri.parse("0"));
+        intent.setData(Uri.parse(String.valueOf(Calendar.getInstance().getTimeInMillis())));
         getActivity().startService(intent);
 
         //region setPictures
@@ -148,7 +148,7 @@ public class WorkDayFragment extends Fragment {
 
         if(allActivities == null || allActivities.size() == 0) {
             long now = Calendar.getInstance().getTimeInMillis();
-            Activity activity1 = new Activity(0, "Leichte Arbeit", new Date(now), new Date(now + 5 * 60 * 1000)); //now + 5 minuten
+            Activity activity1 = new Activity(0, "Leichte Arbeit", new Date(now), new Date(now + 5 * 60 * 1000)); //now + 5 minuten // FIXME immer gleiche zeit bei beiden
             Activity activity2 = new Activity(0, "Schwere Arbeit", new Date(now + 20 * 60 * 1000), new Date(now + 60 * 60 * 1000)); //now + 5 minuten | now + 60 minuten
             dbHelper.insertActivty(activity1);
             dbHelper.insertActivty(activity2);
@@ -200,10 +200,28 @@ public class WorkDayFragment extends Fragment {
         void onFragmentInteraction(Uri uri);
     }
 
-    public void updateUI(boolean worker1working, boolean worker2working,String time){ //TODO call by Service (timer)
-        cb_worker1_working.setEnabled(worker1working);
-        cb_worker2_working.setEnabled(worker2working);
-        tv_workday_header.setText(time);
+    public void updateUI(long currentMillis, String displayTime){ //FIXME Hier wird überprüft ob er gerade arbeitet, müsste eigentlich passen aber checks trotzdem
+        worker1.setWorking(false);
+        worker2.setWorking(false);
+        long t1From = worker1.getActivity().getFrom().getTime();
+        long t2From = worker2.getActivity().getFrom().getTime();
+        long t1Until = worker1.getActivity().getTil().getTime();
+        long t2Until = worker2.getActivity().getTil().getTime() + 1000000;
+
+
+        if(t1From<=currentMillis && t1Until >= currentMillis){
+            worker1.setWorking(true);
+        }
+        if(t2From<=currentMillis && t2Until >= currentMillis){
+            worker2.setWorking(true);
+        }
+
+
+        cb_worker1_working.setEnabled(true);
+        cb_worker2_working.setEnabled(true);
+        cb_worker1_working.setChecked(worker1.isWorking());
+        cb_worker2_working.setChecked(worker2.isWorking());
+        tv_workday_header.setText(displayTime);
     }
     private class DownloadStateReceiver extends BroadcastReceiver
     {
@@ -213,9 +231,9 @@ public class WorkDayFragment extends Fragment {
         // Called when the BroadcastReceiver gets an Intent it's registered to receive
         @Override
         public void onReceive(Context context, Intent intent) {
-            int milliseconds = intent.getIntExtra("Time",0);
-            String time = getDate(milliseconds, "hh:mm");
-            updateUI(false,true,time);
+            Long milliseconds = intent.getLongExtra("Time",0);
+            String time = getDate(milliseconds,"dd.MM.YYYY hh:mm");
+            updateUI(milliseconds,time);
         }
         private String getDate(long milliSeconds, String dateFormat)
         {
