@@ -1,10 +1,14 @@
 package at.htl.schichtbetrieb.entities;
 
+import android.content.ContentValues;
+
+import at.htl.schichtbetrieb.contracts.CVAble;
+
 /**
  * Created by phili on 19.10.2017.
  */
 
-public class Worker{
+public class Worker implements CVAble{
     private int id;
     private String name;
     private boolean working;
@@ -59,5 +63,15 @@ public class Worker{
     @Override
     public String toString() {
         return super.toString();
+    }
+
+    @Override
+    public ContentValues toCV() {
+        ContentValues cv = new ContentValues();
+        cv.put("NAME", name);
+        cv.put("WORKING", isWorking());
+        cv.put("ACTIVITY_ID", activity.getId());
+
+        return cv;
     }
 }

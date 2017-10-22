@@ -14,18 +14,21 @@ import java.util.Date;
 import java.util.LinkedList;
 
 import at.htl.schichtbetrieb.R;
+import at.htl.schichtbetrieb.dataaccess.DbHelperAgain;
 import at.htl.schichtbetrieb.dataaccess.WorkerDBHelper;
 import at.htl.schichtbetrieb.entities.Activity;
 import at.htl.schichtbetrieb.entities.Worker;
+import at.htl.schichtbetrieb.fragments.FragmentAgain;
 import at.htl.schichtbetrieb.fragments.WorkDayFragment;
 import at.htl.schichtbetrieb.services.BackgroundService;
 
-public class StartUpActivity extends AppCompatActivity implements WorkDayFragment.OnFragmentInteractionListener {
+public class StartUpActivity extends AppCompatActivity implements WorkDayFragment.OnFragmentInteractionListener , FragmentAgain.OnFragmentInteractionListener{
 
     //public static Worker worker1 = new Worker(0,"Hans Peter",false,new Activity("Putzen", new Date(), new Date()));
     //public static Worker worker2 = new Worker(1,"Jakob",false,new Activity("Waschen", new Date(), new Date()));
 
     private WorkerDBHelper dbHelper;
+    private DbHelperAgain dbHelperAgain;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +41,9 @@ public class StartUpActivity extends AppCompatActivity implements WorkDayFragmen
         dbHelper.onUpgrade(dbHelper.getWritableDatabase(), 0, 0);
 
 
+        dbHelperAgain = new DbHelperAgain(this.getApplicationContext());
+        dbHelperAgain.onUpgrade(dbHelperAgain.getWritableDatabase(), 0, 0);
+
         /*ContentResolver contentResolver = getContentResolver();
         contentResolver.insert();
 
@@ -46,11 +52,19 @@ public class StartUpActivity extends AppCompatActivity implements WorkDayFragmen
 
         FragmentManager fm = getSupportFragmentManager();
 
+        /*
         WorkDayFragment workDayFragment = (WorkDayFragment) fm.findFragmentById(R.id.fragment_workday);
+
         if(workDayFragment == null)
         workDayFragment = new WorkDayFragment();
+        */
 
-        fm.beginTransaction().add(R.id.container_main, workDayFragment, null).commit();
+        FragmentAgain fragmentAgain = (FragmentAgain) fm.findFragmentById(R.id.fragment_again);
+        if(fragmentAgain == null)
+            fragmentAgain = new FragmentAgain();
+
+        //fm.beginTransaction().add(R.id.container_main, workDayFragment, null).commit();
+        fm.beginTransaction().add(R.id.container_main, fragmentAgain, null).commit();
     }
 
     @Override

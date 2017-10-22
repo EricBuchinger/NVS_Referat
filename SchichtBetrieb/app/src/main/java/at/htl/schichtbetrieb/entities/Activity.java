@@ -1,12 +1,16 @@
 package at.htl.schichtbetrieb.entities;
 
+import android.content.ContentValues;
+
 import java.util.Date;
+
+import at.htl.schichtbetrieb.contracts.CVAble;
 
 /**
  * Created by ericb on 19.10.2017.
  */
 
-public class Activity {
+public class Activity implements CVAble{
     private int id;
     private String name;
     private Date from;
@@ -57,5 +61,15 @@ public class Activity {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    @Override
+    public ContentValues toCV() {
+        ContentValues cv = new ContentValues();
+        cv.put("NAME", getName());
+        cv.put("UNTIL", String.valueOf(getTil()));
+        cv.put("_FROM", String.valueOf(getFrom()));
+
+        return cv;
     }
 }
