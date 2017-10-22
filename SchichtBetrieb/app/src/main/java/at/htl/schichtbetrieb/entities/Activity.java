@@ -52,7 +52,7 @@ public class Activity implements CVAble{
 
     @Override
     public String toString() {
-        return super.toString();
+        return "Activity || Name: " + getName() + " | ID: " + getId();
     }
 
     public int getId() {

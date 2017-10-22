@@ -42,18 +42,18 @@ public class DbHelperAgain extends SQLiteOpenHelper {
         onCreate(sqLiteDatabase);
     }
 
-    public void refreshDatabase(){
+    private void refreshDatabase(){
         db.close();
         db = getWritableDatabase();
     }
 
-    public void onDestroy(){
-        db.close();
-    }
+    public void deleteData(String table, int id){ db.delete(table, table + "_ID = " + id, null );}
 
     public long insertData(String table, ContentValues cv){
         return db.insert(table, null, cv);
     }
+
+    public int updateData(String table, ContentValues cv, int id) { return db.update(table, cv, table + "_ID =" + id, null);}
 
     public LinkedList<Activity> getAllActivities(){
         LinkedList<Activity> listToReturn = new LinkedList<>();
@@ -70,6 +70,7 @@ public class DbHelperAgain extends SQLiteOpenHelper {
             refreshDatabase();
         return listToReturn;
     }
+
     public LinkedList<Worker> getAllWorkers(LinkedList<Activity> allActivities){
         LinkedList<Worker> listToReturn = new LinkedList<>();
         Cursor c = db.query(TABLE_NAME_WORKERS, null, null, null, null, null, null); // select *

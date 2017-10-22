@@ -33,19 +33,12 @@ public class MainActivity extends AppCompatActivity {
         Bitmap worker1Bitmap = null, worker2Bitmap = null;
 
         //URI: at.htl.schichtbetrieb.providers.workerimageprovider/images
+
         Uri yourURI = WorkerImageProviderContract.CONTENT_URI;
-        //ContentProviderClient client = getContentResolver().acquireContentProviderClient(yourURI);
-
         ContentResolver cr = getContentResolver();
-
         Cursor allpics = null;
-
         allpics = cr.query(yourURI, null, null, null, null); //FIXME failed: permission denied ?
-        /*try {
-            allpics = client.query(yourURI, null, null, null, null); //getAll
-        } catch (RemoteException e) {
-            e.printStackTrace();
-        }*/
+
         LinkedList<Bitmap> allBitmaps = new LinkedList<>();
 
         if(allpics != null)

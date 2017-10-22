@@ -62,7 +62,7 @@ public class Worker implements CVAble{
 
     @Override
     public String toString() {
-        return super.toString();
+        return "Worker || Name: " + getName() + " | Working: " + isWorking();
     }
 
     @Override

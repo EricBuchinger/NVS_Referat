@@ -18,6 +18,7 @@ import java.util.LinkedList;
 import java.util.Objects;
 
 import at.htl.schichtbetrieb.R;
+import at.htl.schichtbetrieb.contracts.WorkerDBContract;
 import at.htl.schichtbetrieb.dataaccess.DbBitmapUtility;
 import at.htl.schichtbetrieb.dataaccess.DbHelperAgain;
 import at.htl.schichtbetrieb.entities.Activity;
@@ -53,6 +54,7 @@ public class FragmentAgain extends Fragment {
     private LinkedList<Worker> allWorkers;
     private LinkedList<Activity> allActivities;
     private LinkedList<WorkerImage> allWorkerImages;
+    private Worker workerToUpdate;
 
     public FragmentAgain() {
         // Required empty public constructor
@@ -94,6 +96,11 @@ public class FragmentAgain extends Fragment {
         dbHelperAgain = new DbHelperAgain(getContext());
 
         initializeDB();
+
+        //play around with the CRUD
+        dbHelperAgain.deleteData(WorkerDBContract.TABLE_NAME_WORKERS, 1);
+        dbHelperAgain.updateData(WorkerDBContract.TABLE_NAME_WORKERS, workerToUpdate.toCV(), workerToUpdate.getId());
+
         getDataFromDB();
 
         tv_activities = v.findViewById(R.id.tv_activities);
@@ -136,13 +143,18 @@ public class FragmentAgain extends Fragment {
     }
 
     private void initializeDB() {
-
         long now = Calendar.getInstance().getTimeInMillis();
         Activity activity1 = new Activity(0, "Leichte Arbeit", new Date(now), new Date(now + 5 * 60 * 1000)); //now + 5 minuten
         Activity activity2 = new Activity(0, "Schwere Arbeit", new Date(now + 20 * 60 * 1000), new Date(now + 60 * 60 * 1000));
 
         Worker worker1 = new Worker(0, "Eric", true, activity1);
         Worker worker2 = new Worker(0, "Philipp", true, activity2);
+        Worker worker3 = new Worker(0, "Jakob", true, activity2);
+        Worker worker4 = new Worker(0, "Moritz", true, activity1);
+        Worker worker5 = new Worker(0, "Thomas", true, activity2);
+
+        workerToUpdate = worker3;
+        workerToUpdate.setName("UPDATED_JAKOB");
 
         Bitmap pic_w1 = DbBitmapUtility.getBitmapFromAsset(getContext(), "worker1.png");
         Bitmap pic_w2 = DbBitmapUtility.getBitmapFromAsset(getContext(), "worker2.jpg");
@@ -156,6 +168,10 @@ public class FragmentAgain extends Fragment {
         dbHelperAgain.insertData(TABLE_NAME_IMAGES, wimage2.toCV());
         dbHelperAgain.insertData(TABLE_NAME_WORKERS, worker1.toCV());
         dbHelperAgain.insertData(TABLE_NAME_WORKERS, worker2.toCV());
+        dbHelperAgain.insertData(TABLE_NAME_WORKERS, worker2.toCV());
+        dbHelperAgain.insertData(TABLE_NAME_WORKERS, worker3.toCV());
+        dbHelperAgain.insertData(TABLE_NAME_WORKERS, worker4.toCV());
+        dbHelperAgain.insertData(TABLE_NAME_WORKERS, worker5.toCV());
     }
 
     // TODO: Rename method, update argument and hook method into UI event
