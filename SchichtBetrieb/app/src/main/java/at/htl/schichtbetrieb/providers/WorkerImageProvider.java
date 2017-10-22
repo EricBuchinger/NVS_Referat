@@ -9,7 +9,7 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import at.htl.schichtbetrieb.contracts.WorkerProviderContract;
+import at.htl.schichtbetrieb.contracts.WorkerImageProviderContract;
 import at.htl.schichtbetrieb.dataaccess.WorkerDBHelper;
 
 /**
@@ -23,8 +23,8 @@ public class WorkerImageProvider extends ContentProvider {
     private static final UriMatcher sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 
     static {
-        sUriMatcher.addURI(WorkerProviderContract.AUTHORITY, WorkerProviderContract.BASE_PATH, 1);
-        sUriMatcher.addURI(WorkerProviderContract.AUTHORITY, WorkerProviderContract.BASE_PATH + "/#", 2);
+        sUriMatcher.addURI(WorkerImageProviderContract.AUTHORITY, WorkerImageProviderContract.BASE_PATH, 1);
+        sUriMatcher.addURI(WorkerImageProviderContract.AUTHORITY, WorkerImageProviderContract.BASE_PATH + "/#", 2);
     }
 
     @Override
@@ -38,16 +38,21 @@ public class WorkerImageProvider extends ContentProvider {
     public Cursor query(@NonNull Uri uri, @Nullable String[] projection, @Nullable String selection, @Nullable String[] selectionArgs, @Nullable String sortOrder) {
         switch(sUriMatcher.match(uri)){
             case 1: //recognized
+
                 break;
 
+            case 2: //recognized with /#
+
+            break;
                 default:
                     throw new IllegalArgumentException("Unknown Uri");
 
         }
         SQLiteDatabase database = dbHelper.getWritableDatabase();
-        //Cursor c = database.query(projection, selection, selectionArgs, sortOrder);
+        Cursor c = database.query("WORKERIMAGE", projection, selection, selectionArgs, sortOrder, "", "");
 
-        return null;
+        c.setNotificationUri(getContext().getContentResolver(), uri);
+        return c;
     }
 
     @Nullable
@@ -59,7 +64,20 @@ public class WorkerImageProvider extends ContentProvider {
     @Nullable
     @Override
     public Uri insert(@NonNull Uri uri, @Nullable ContentValues contentValues) {
-        return null;
+        long id = 0;
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        switch(sUriMatcher.match(uri)){
+            case 1:
+                id = dbHelper.addImage(contentValues);
+                break;
+
+            default:
+                throw new IllegalArgumentException("wrong uri");
+        }
+
+        getContext().getContentResolver().notifyChange(uri, null);
+        return Uri.parse(WorkerImageProviderContract.BASE_PATH + "/" + id);
     }
 
     @Override

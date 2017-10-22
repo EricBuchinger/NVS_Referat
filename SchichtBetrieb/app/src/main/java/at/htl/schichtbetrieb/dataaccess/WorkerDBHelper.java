@@ -190,6 +190,11 @@ public class WorkerDBHelper extends SQLiteOpenHelper {
         return bitmaps;
     }
 
+    public long addImage(ContentValues cv){
+        SQLiteDatabase db = getWritableDatabase();
+        return db.insert("WORKERIMAGE", null, cv);
+    }
+
         /*LinkedList<Worker> workers = new LinkedList<>();
         SQLiteDatabase db = getReadableDatabase();
         Cursor cursor = db.rawQuery("SELECT COUNT(*) FROM WORKER", null);

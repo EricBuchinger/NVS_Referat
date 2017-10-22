@@ -23,6 +23,14 @@
                <action android:name="at.htl.schichtbetrieb.services.Example"></action>
            </intent-filter>
         </service>
+
+        <provider
+            android:authorities="at.htl.schichtbetrieb.providers"
+            android:name=".providers.WorkerImageProvider"
+            android:enabled="true"
+            android:exported="true"
+            android:grantUriPermissions="true"
+            ></provider>
     </application>
 
 
