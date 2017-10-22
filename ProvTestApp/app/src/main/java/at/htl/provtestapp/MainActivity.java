@@ -19,13 +19,7 @@ import java.util.LinkedList;
 
 import at.htl.provtestapp.contracts.WorkerImageProviderContract;
 
-public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>{
-
-    private SimpleCursorAdapter adapter;
-    public static final int LOADER_ID = 1976;
-
-    final String[] from = new String[] {"WIMAGE"};
-    //final int[] to = new int[] {R.id.iv_w1}
+public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,21 +61,5 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
         iv_worker1.setImageDrawable(new BitmapDrawable(getResources(), worker1Bitmap));
         iv_worker2.setImageDrawable(new BitmapDrawable(getResources(), worker2Bitmap));
-
-    }
-
-    @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        return null;
-    }
-
-    @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-
     }
 }

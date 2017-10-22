@@ -22,10 +22,10 @@ public class WorkerImageProvider extends ContentProvider {
 
     private static final UriMatcher sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 
-    static {
+    /*static {
         sUriMatcher.addURI(WorkerImageProviderContract.AUTHORITY, WorkerImageProviderContract.BASE_PATH, 1);
         sUriMatcher.addURI(WorkerImageProviderContract.AUTHORITY, WorkerImageProviderContract.BASE_PATH + "/#", 2);
-    }
+    }*/
 
     @Override
     public boolean onCreate() {
@@ -35,23 +35,14 @@ public class WorkerImageProvider extends ContentProvider {
 
     @Nullable
     @Override
-    public Cursor query(@NonNull Uri uri, @Nullable String[] projection, @Nullable String selection, @Nullable String[] selectionArgs, @Nullable String sortOrder) {
-        switch(sUriMatcher.match(uri)){
-            case 1: //recognized
-
-                break;
-
-            case 2: //recognized with /#
-
-            break;
-                default:
-                    throw new IllegalArgumentException("Unknown Uri");
-
-        }
+    public Cursor query(@NonNull Uri uri, @Nullable String[] projection,
+                        @Nullable String selection, @Nullable String[] selectionArgs,
+                        @Nullable String sortOrder)
+    {
         SQLiteDatabase database = dbHelper.getWritableDatabase();
         Cursor c = database.query("WORKERIMAGE", projection, selection, selectionArgs, sortOrder, "", "");
-
         c.setNotificationUri(getContext().getContentResolver(), uri);
+        database.close();
         return c;
     }
 
@@ -65,7 +56,7 @@ public class WorkerImageProvider extends ContentProvider {
     @Override
     public Uri insert(@NonNull Uri uri, @Nullable ContentValues contentValues) {
         long id = 0;
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        //SQLiteDatabase db = dbHelper.getWritableDatabase();
 
         switch(sUriMatcher.match(uri)){
             case 1:
