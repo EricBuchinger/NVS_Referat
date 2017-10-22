@@ -4,6 +4,10 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.AssetManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -25,6 +29,7 @@ import java.util.Calendar;
 import java.util.LinkedList;
 
 import at.htl.schichtbetrieb.R;
+import at.htl.schichtbetrieb.dataaccess.DbBitmapUtility;
 import at.htl.schichtbetrieb.dataaccess.WorkerDBHelper;
 import at.htl.schichtbetrieb.entities.Activity;
 import at.htl.schichtbetrieb.entities.Worker;
@@ -55,6 +60,8 @@ public class WorkDayFragment extends Fragment {
     public Worker worker1, worker2;
 
     WorkerDBHelper dbHelper;
+
+    Bitmap worker1bitmap, worker2bitmap;
 
 
     public static int minutes = 0;
@@ -116,29 +123,27 @@ public class WorkDayFragment extends Fragment {
 
         Intent intent = new Intent(getContext(),BackgroundService.class);
         intent.setData(Uri.parse(String.valueOf(Calendar.getInstance().getTimeInMillis())));
-        getActivity().startService(intent);
+        //getActivity().startService(intent); //FIXME never stopped
+
+        //load images from database
+        worker1bitmap = dbHelper.getImageById(1); //starts at 1
+        worker2bitmap = dbHelper.getImageById(2);
 
         //region setPictures
-        try
-        {
-            // get input stream
-            InputStream ims = getActivity().getAssets().open("worker1.png");
-            // load image as Drawable
-            Drawable d = Drawable.createFromStream(ims, null);
-            // set image to ImageView
-            iv_worker1.setImageDrawable(d);
+        // get input stream
+        //InputStream ims = getActivity().getAssets().open("worker1.png");
+        // load image as Drawable
+        //Drawable d = Drawable.createFromStream(ims, null); TODO
+        // set image to ImageView
+        Drawable d = new BitmapDrawable(getResources(), worker1bitmap);
+        iv_worker1.setImageDrawable(d);
 
-            ims = getActivity().getAssets().open("worker2.jpg");
-            d = Drawable.createFromStream(ims, null);
+        //ims = getActivity().getAssets().open("worker2.jpg");
+        //d = Drawable.createFromStream(ims, null);
 
-            iv_worker2.setImageDrawable(d);
-            ims .close();
-        }
-        catch(IOException ignored)
-        {
-            Log.e("Workday","Error in Reading Inputstream!");
-            ignored.printStackTrace();
-        }
+        d = new BitmapDrawable(getResources(), worker2bitmap);
+        iv_worker2.setImageDrawable(d);
+        //ims .close();
 
         //endregion
         return v;
@@ -176,6 +181,30 @@ public class WorkDayFragment extends Fragment {
 
             //TODO Share with contentprovider
 
+            //getContext().getAssets().open()
+
+            Bitmap pic_w1 = getBitmapFromAsset(getContext(), "worker1.png");
+            Bitmap pic_w2 = getBitmapFromAsset(getContext(), "worker2.jpg");
+
+            dbHelper.insertImage("Worker1Pic", DbBitmapUtility.getBytes(pic_w1));
+            dbHelper.insertImage("Worker2Pic", DbBitmapUtility.getBytes(pic_w2));
+        dbHelper.close();
+
+    }
+
+    public static Bitmap getBitmapFromAsset(Context context, String filePath) {
+        AssetManager assetManager = context.getAssets();
+
+        InputStream istr;
+        Bitmap bitmap = null;
+        try {
+            istr = assetManager.open(filePath);
+            bitmap = BitmapFactory.decodeStream(istr);
+        } catch (IOException e) {
+            // handle exception
+        }
+
+        return bitmap;
     }
 
     @Override

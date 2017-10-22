@@ -2,24 +2,51 @@ package at.htl.schichtbetrieb.providers;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
+import android.content.UriMatcher;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+
+import at.htl.schichtbetrieb.contracts.WorkerProviderContract;
+import at.htl.schichtbetrieb.dataaccess.WorkerDBHelper;
 
 /**
  * Created by phili on 20.10.2017.
  */
 
 public class WorkerImageProvider extends ContentProvider {
+
+    private WorkerDBHelper dbHelper;
+
+    private static final UriMatcher sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
+
+    static {
+        sUriMatcher.addURI(WorkerProviderContract.AUTHORITY, WorkerProviderContract.BASE_PATH, 1);
+        sUriMatcher.addURI(WorkerProviderContract.AUTHORITY, WorkerProviderContract.BASE_PATH + "/#", 2);
+    }
+
     @Override
     public boolean onCreate() {
+        dbHelper = new WorkerDBHelper(getContext());
         return true;
     }
 
     @Nullable
     @Override
-    public Cursor query(@NonNull Uri uri, @Nullable String[] strings, @Nullable String s, @Nullable String[] strings1, @Nullable String s1) {
+    public Cursor query(@NonNull Uri uri, @Nullable String[] projection, @Nullable String selection, @Nullable String[] selectionArgs, @Nullable String sortOrder) {
+        switch(sUriMatcher.match(uri)){
+            case 1: //recognized
+                break;
+
+                default:
+                    throw new IllegalArgumentException("Unknown Uri");
+
+        }
+        SQLiteDatabase database = dbHelper.getWritableDatabase();
+        //Cursor c = database.query(projection, selection, selectionArgs, sortOrder);
+
         return null;
     }
 

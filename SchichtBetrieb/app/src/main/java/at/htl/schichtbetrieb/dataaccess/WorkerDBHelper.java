@@ -5,7 +5,9 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.graphics.Bitmap;
 
 import java.sql.Date;
 import java.util.LinkedList;
@@ -35,14 +37,19 @@ public class WorkerDBHelper extends SQLiteOpenHelper {
         String createStatement = "CREATE TABLE " + TABLE_NAME_WORKERS + "(WORKER_ID INTEGER PRIMARY KEY AUTOINCREMENT, NAME TEXT, WORKING NUMBER, ACTIVITY_ID NUMBER, " +
                 "FOREIGN KEY(ACTIVITY_ID) references ACTIVITY(ACTIVITY_ID)" +
                 ")";
+
+        String imageStatement = "CREATE TABLE WORKERIMAGE (WIMAGE_ID INTEGER PRIMARY KEY AUTOINCREMENT, NAME TEXT, WIMAGE BLOB)";
+
         db.execSQL(firstStatement);
         db.execSQL(createStatement);
+        db.execSQL(imageStatement);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int i, int i1) {
         db.execSQL("DROP TABLE IF EXISTS WORKER");
         db.execSQL("DROP TABLE IF EXISTS ACTIVITY");
+        db.execSQL("DROP TABLE IF EXISTS WORKERIMAGE");
         onCreate(db);
     }
 
@@ -143,6 +150,45 @@ public class WorkerDBHelper extends SQLiteOpenHelper {
         return workers;
     }
 
+    public void insertImage(String name, byte[] image) throws SQLiteException {
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues cv = new  ContentValues();
+        cv.put("NAME",    name);
+        cv.put("WIMAGE",   image);
+        db.insert( "WORKERIMAGE", null, cv);
+        db.close();
+    }
+
+    public Bitmap getImageById(int wimage_id){
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM WORKERIMAGE WHERE WIMAGE_ID = " + wimage_id, null);
+
+        if(cursor != null)
+            if(cursor.moveToFirst()){
+                Bitmap b = DbBitmapUtility.getImage(cursor.getBlob(2)); //directly converted to bitmap
+                db.close();
+                return b;
+            }
+
+            db.close();
+        return null;
+    }
+
+    public List<Bitmap> getAllImages(){
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM WORKERIMAGE", null);
+        List<Bitmap> bitmaps = new LinkedList<>();
+
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                do {
+                    bitmaps.add(DbBitmapUtility.getImage(cursor.getBlob(2)));
+                } while (cursor.moveToNext());
+            }
+        }
+
+        return bitmaps;
+    }
 
         /*LinkedList<Worker> workers = new LinkedList<>();
         SQLiteDatabase db = getReadableDatabase();
