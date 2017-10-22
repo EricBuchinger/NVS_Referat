@@ -8,7 +8,7 @@ import android.net.Uri;
  */
 
 public class WorkerImageProviderContract {
-    public static final String AUTHORITY = "at.htl.schichtbetrieb.providers.workerimageprovider";
+    public static final String AUTHORITY = "at.htl.schichtbetrieb.providers.WorkerImageProvider";
     public static final String BASE_PATH = "images";
     public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/" + BASE_PATH);
     public static final String CONTENT_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE + "/images";

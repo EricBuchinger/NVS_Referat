@@ -2,6 +2,7 @@ package at.htl.provtestapp;
 
 import android.content.ContentProvider;
 import android.content.ContentProviderClient;
+import android.content.ContentResolver;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -38,14 +39,19 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         Bitmap worker1Bitmap = null, worker2Bitmap = null;
 
         //URI: at.htl.schichtbetrieb.providers.workerimageprovider/images
-        Uri yourURI = Uri.parse(WorkerImageProviderContract.AUTHORITY + "/" + WorkerImageProviderContract.BASE_PATH);
-        ContentProviderClient client = getContentResolver().acquireContentProviderClient(yourURI); //FIXME client is null -> not found ?
+        Uri yourURI = WorkerImageProviderContract.CONTENT_URI;
+        //ContentProviderClient client = getContentResolver().acquireContentProviderClient(yourURI);
+
+        ContentResolver cr = getContentResolver();
+
         Cursor allpics = null;
-        try {
+
+        allpics = cr.query(yourURI, null, null, null, null); //FIXME failed: permission denied ?
+        /*try {
             allpics = client.query(yourURI, null, null, null, null); //getAll
         } catch (RemoteException e) {
             e.printStackTrace();
-        }
+        }*/
         LinkedList<Bitmap> allBitmaps = new LinkedList<>();
 
         if(allpics != null)
@@ -55,6 +61,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 }while(allpics.moveToNext());
             }
 
+            allpics.close();
         worker1Bitmap = allBitmaps.get(0);
         worker2Bitmap = allBitmaps.get(1);
 

@@ -20,17 +20,22 @@
            android:name=".services.BackgroundService"
            android:exported="true">
            <intent-filter>
-               <action android:name="at.htl.schichtbetrieb.services.Example"></action>
+               <action android:name="at.htl.schichtbetrieb.services.Example" />
            </intent-filter>
         </service>
 
         <provider
-            android:authorities="at.htl.schichtbetrieb.providers"
+            android:authorities="at.htl.schichtbetrieb.providers.WorkerImageProvider"
             android:name=".providers.WorkerImageProvider"
             android:enabled="true"
             android:exported="true"
             android:grantUriPermissions="true"
-            ></provider>
+            android:readPermission="at.htl.schichtbetrieb.providers.WorkerImageProvider.PERMISSION"/>
+
+        <permission
+            android:name="at.htl.schichtbetrieb.providers.WorkerImageProvider.PERMISSION"
+            android:protectionLevel="normal"
+            />
     </application>
 
 
