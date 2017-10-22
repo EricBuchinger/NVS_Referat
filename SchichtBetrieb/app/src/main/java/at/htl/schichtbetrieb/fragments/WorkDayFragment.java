@@ -123,7 +123,7 @@ public class WorkDayFragment extends Fragment {
 
         Intent intent = new Intent(getContext(),BackgroundService.class);
         intent.setData(Uri.parse(String.valueOf(Calendar.getInstance().getTimeInMillis())));
-        //getActivity().startService(intent); //FIXME never stopped
+        getActivity().startService(intent);
 
         //load images from database
         worker1bitmap = dbHelper.getImageById(1); //starts at 1
