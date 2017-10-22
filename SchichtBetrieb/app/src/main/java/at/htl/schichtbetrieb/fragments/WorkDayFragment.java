@@ -23,7 +23,7 @@ import android.widget.TextView;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.sql.Date;
+import java.util.Date;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.LinkedList;
@@ -152,9 +152,17 @@ public class WorkDayFragment extends Fragment {
         LinkedList<Activity> allActivities = (LinkedList<Activity>) dbHelper.getAllActivities();
 
         if(allActivities == null || allActivities.size() == 0) {
-            long now = Calendar.getInstance().getTimeInMillis();
-            Activity activity1 = new Activity(0, "Leichte Arbeit", new Date(now), new Date(now + 5 * 60 * 1000)); //now + 5 minuten // FIXME immer gleiche zeit bei beiden
-            Activity activity2 = new Activity(0, "Schwere Arbeit", new Date(now + 20 * 60 * 1000), new Date(now + 60 * 60 * 1000)); //now + 5 minuten | now + 60 minuten
+            Calendar c1 = Calendar.getInstance();
+            Calendar c2 = Calendar.getInstance();
+
+            c1.set(2017,9,22,12,0,0);
+            c2.set(2017,9,22,22,0,0);
+            Activity activity1 = new Activity(0, "Leichte Arbeit",c1.getTime(),c2.getTime());
+
+            c1.set(2017,9,22,0,0,0);
+            c2.set(2017,9,22,6,0,0);
+            Activity activity2 = new Activity(0, "Schwere Arbeit",c1.getTime(),c2.getTime());
+
             dbHelper.insertActivty(activity1);
             dbHelper.insertActivty(activity2);
             allActivities = (LinkedList<Activity>) dbHelper.getAllActivities(); //refreshed
@@ -229,19 +237,29 @@ public class WorkDayFragment extends Fragment {
         void onFragmentInteraction(Uri uri);
     }
 
-    public void updateUI(long currentMillis, String displayTime){ //FIXME Hier wird überprüft ob er gerade arbeitet, müsste eigentlich passen aber checks trotzdem
+    public void updateUI(long currentMillis, String displayTime){
         worker1.setWorking(false);
         worker2.setWorking(false);
-        long t1From = worker1.getActivity().getFrom().getTime();
-        long t2From = worker2.getActivity().getFrom().getTime();
-        long t1Until = worker1.getActivity().getTil().getTime();
-        long t2Until = worker2.getActivity().getTil().getTime() + 1000000;
+        Calendar current = Calendar.getInstance();
+        Calendar from = Calendar.getInstance();
+        Calendar til = Calendar.getInstance();
 
+        current.setTimeInMillis(currentMillis);
+        from.setTimeInMillis(worker1.getActivity().getFrom().getTime());
+        til.setTimeInMillis(worker1.getActivity().getTil().getTime());
 
-        if(t1From<=currentMillis && t1Until >= currentMillis){
+        Date asd = current.getTime();
+        Date asdf = from.getTime();
+        Date asdd =til.getTime();
+
+        if(from.getTime().compareTo(current.getTime())>=0 && til.getTime().compareTo(current.getTime())<=0){
             worker1.setWorking(true);
         }
-        if(t2From<=currentMillis && t2Until >= currentMillis){
+
+        from.setTimeInMillis(worker2.getActivity().getFrom().getTime());
+        til.setTimeInMillis(worker2.getActivity().getTil().getTime());
+
+        if(from.getTime().compareTo(current.getTime())>=0 && til.getTime().compareTo(current.getTime())<=0){
             worker2.setWorking(true);
         }
 
@@ -261,7 +279,7 @@ public class WorkDayFragment extends Fragment {
         @Override
         public void onReceive(Context context, Intent intent) {
             Long milliseconds = intent.getLongExtra("Time",0);
-            String time = getDate(milliseconds,"dd.MM.YYYY hh:mm");
+            String time = getDate(milliseconds,"DD.MM.YYYY hh:mm:ss");
             updateUI(milliseconds,time);
         }
         private String getDate(long milliSeconds, String dateFormat)
@@ -272,7 +290,8 @@ public class WorkDayFragment extends Fragment {
             // Create a calendar object that will convert the date and time value in milliseconds to date.
             Calendar calendar = Calendar.getInstance();
             calendar.setTimeInMillis(milliSeconds);
-            return formatter.format(calendar.getTime());
+            String splitted = calendar.getTime().toString().substring(0,16);
+            return splitted;
         }
     }
 }

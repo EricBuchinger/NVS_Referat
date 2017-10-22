@@ -10,6 +10,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.Bitmap;
 
 import java.sql.Date;
+import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -118,8 +119,14 @@ public class WorkerDBHelper extends SQLiteOpenHelper {
         if (cursor != null) {
             if (cursor.moveToFirst()) {
                 do {
+                    Long from = Date.parse(cursor.getString(1));
+                    Long til = Date.parse(cursor.getString(2));
+                    Calendar c1 = Calendar.getInstance();
+                    Calendar c2 = Calendar.getInstance();
+                    c1.setTimeInMillis(from);
+                    c2.setTimeInMillis(til);
                     activities.add(new Activity(cursor.getInt(0), cursor.getString(1),
-                            Date.valueOf(cursor.getString(1)), Date.valueOf(cursor.getString(2))));
+                            c1.getTime(), c2.getTime()));
                 } while (cursor.moveToNext());
 
             }
